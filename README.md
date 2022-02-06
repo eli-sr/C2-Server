@@ -4,13 +4,19 @@ Commnad and control server programmed in Python3. This program is designed to ma
 
 ## Usage
 1. Start the Command & Control server
-`python3 c2server.py`
+```
+python3 c2server.py
+```
 
 2. Start the botmaster shell
-`python3 c2cmd.py`
+```
+python3 c2cmd.py
+```
 
 3. Start the zombie client
-`python3 client.py` 
+```
+python3 client.py
+``` 
 
 ## By developing
 - New type of attacks as keylogger and screenshoots
